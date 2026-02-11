@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>Mercuryo Widget with Redirect</title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2487.6">
+  <style type="text/css">
+  </style>
+</head>
+<body>
+  <div id="mercuryo-widget"></div>
+
+  <script src="https://sandbox-widget.mrcr.io/embed.2.0.js"></script>
+  <script>
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+      const widgetContainer = document.getElementById('mercuryo-widget');
+      if (widgetContainer) {
+        mercuryoWidget.run({ 
+          widgetId: 'd257cd3a-4375-4c72-8fec-aa5ccbd22ca0', 
+          redirectUrl: 'https://google.com',
+          host: widgetContainer
+        });
+      } else {
+        console.error('Widget container not found');
+      }
+    });
+  </script>
+
+</body>
+</html>
