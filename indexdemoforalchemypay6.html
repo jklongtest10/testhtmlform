@@ -511,9 +511,9 @@
    * 收集参数 → 生成 rawQuery（签名用）→ 生成带 sign 的最终 URL
    *
    * 关键区分：
-   *   rawQuery    = key=原始value&...   （用于签名，不 encode value）
-   *   finalQuery  = key=encodedValue&... （用于 URL，需 encode 特殊字符）
-   *   sign 追加在 finalQuery 末尾
+   *   rawQuery  = key=原始value&...  （签名和最终URL都用这个，value 不 encode）
+   *   sign      = encodeURIComponent(base64)  （只有 sign 值做 encode）
+   *   最终URL  = base?rawQuery&sign=encodedSign
    */
   async function buildSignedUrl() {
     const appId     = document.getElementById('appId').value.trim();
@@ -548,26 +548,22 @@
     const rawQuery    = getStringToSign(sigParams);
     const requestPath = '/index/rampPageBuy?' + rawQuery;
 
-    // ② URL 用：value 做 encodeURIComponent，保证特殊字符安全
-    const finalQuery = Object.keys(sigParams)
-      .sort()
-      .filter(k => sigParams[k] !== '' && sigParams[k] != null)
-      .map(k => `${k}=${encodeURIComponent(sigParams[k])}`)
-      .join('&');
-
+    // ② 最终 URL 与官方完全一致：直接用 rawQuery，value 不做 encodeURIComponent
+    //    官方所有语言示例（JS/PHP/Go/Python）都是:
+    //    base + '?' + rawDataToSign + '&sign=' + signature
     let signatureStr = '';
     let signContent  = '';
     let signatureRaw = '';
 
     if (appSecret) {
       const result = await generateSignature(timestamp, 'GET', requestPath, appSecret);
-      signatureStr = result.signature;      // encodeURIComponent(base64)
+      signatureStr = result.signature;      // encodeURIComponent(base64)，只有 sign 值做 encode
       signatureRaw = result.signatureRaw;   // 原始 base64，用于调试
       signContent  = result.signContent;
     }
 
-    // 最终 URL = base?finalQuery&sign=encodedBase64
-    const url = `${DOMAINS[currentEnv]}?${finalQuery}${signatureStr ? '&sign=' + signatureStr : ''}`;
+    // 最终 URL = base?rawQuery&sign=encodedBase64（严格对齐官方）
+    const url = `${DOMAINS[currentEnv]}?${rawQuery}${signatureStr ? '&sign=' + signatureStr : ''}`;
 
     return { url, signContent, rawQuery, finalQuery, signatureStr, signatureRaw, timestamp, requestPath };
   }
