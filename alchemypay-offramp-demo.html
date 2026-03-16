@@ -697,6 +697,7 @@
     const { url, signContent, signatureRaw, signatureStr, timestamp } = result;
     currentUrl = url;
 
+    addLog(`currentUrl: ${currentUrl}`, 'info');
     addLog(`path: ${REQUEST_PATH}`, 'info');
     addLog(`timestamp: ${timestamp}`, 'info');
     addLog(`sign-content: ${signContent}`, 'info');
