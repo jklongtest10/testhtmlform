@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercuryo 出金测试 (Sell)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        #mercuryo-widget {
+            margin-top: 20px;
+            min-height: 500px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #0d47a1;
+        }
+        .warning {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #e65100;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .steps ol {
+            margin: 10px 0 0 20px;
+            padding: 0;
+        }
+        .steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💸 Mercuryo 出金测试 (Sell Crypto)</h1>
+        
+        <div class="alert alert-danger">
+            <strong>⚠️ 出金功能要求</strong><br>
+            1. 用户必须已完成 KYC 验证<br>
+            2. 出金功能必须由集成经理启用（默认禁用）<br>
+            3. 仅支持 EUR 和 USD 两种法币<br>
+            4. 如果 6 小时内未收到加密货币，交易将失败
+        </div>
+        
+        <div class="alert">
+            <strong>⚠️ 域名配置</strong><br>
+            1. 登录 <a href="https://sandbox-dashboard.mrcr.io" target="_blank">Sandbox Dashboard</a><br>
+            2. 进入你的 Widget 设置<br>
+            3. 在 <strong>Domain URL</strong> 字段填入：<code>file://</code> 或 <code>http://localhost</code><br>
+            4. 确认出金功能已启用（联系集成经理）
+        </div>
+        
+        <div class="steps">
+            <strong>📋 出金流程说明：</strong>
+            <ol>
+                <li>用户在 Widget 中输入要出售的加密货币数量</li>
+                <li>系统生成一个充值地址</li>
+                <li>用户向该地址转入加密货币</li>
+                <li>收到加密货币后，系统自动兑换为法币</li>
+                <li>法币转入用户指定的银行卡</li>
+            </ol>
+        </div>
+        
+        <div class="info">
+            <strong>测试地址：</strong>BTC Testnet: <code>msBE6aCaAesegu4VzbQW3L5xWBL8vi15Q7</code><br>
+            <strong>测试银行卡：</strong>用于接收法币的卡号
+        </div>
+        
+        <div class="warning">
+            <strong>⏰ 重要时限：</strong>如果加密货币未在 6 小时内收到，交易将失败。收到的加密货币会被存入用户的 Mercuryo 钱包余额（不会转换为法币）。只有在 Mercuryo 端出现错误时，加密货币才会退款到 refundAddress。
+        </div>
+        
+        <div class="form-group">
+            <label>Widget ID *</label>
+            <input type="text" id="widget-id" placeholder="例如: a8c1dead-ed5f-4740-b9ce-c4ea7721c93b">
+        </div>
+        
+        <div class="form-group">
+            <label>Secret Key *</label>
+            <input type="text" id="secret" placeholder="从 Dashboard 复制 Secret Key">
+        </div>
+        
+        <div class="form-group">
+            <label>退款地址 (Refund Address) *</label>
+            <input type="text" id="refund-address" value="msBE6aCaAesegu4VzbQW3L5xWBL8vi15Q7" 
+                   placeholder="如果出错，加密货币将退回此地址">
+            <small style="color: #666; font-size: 12px;">当 Mercuryo 端发生错误时，加密货币会退回到此地址</small>
+        </div>
+        
+        <div class="form-group">
+            <label>出售的加密货币</label>
+            <select id="currency">
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="USDT">Tether (USDT)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>接收的法币</label>
+            <select id="fiat-currency">
+                <option value="EUR">欧元 (EUR)</option>
+                <option value="USD">美元 (USD)</option>
+            </select>
+            <small style="color: #666; font-size: 12px;">注意：出金仅支持 EUR 和 USD</small>
+        </div>
+        
+        <div class="form-group">
+            <label>出售数量（加密货币）</label>
+            <input type="text" id="amount" value="0.001" placeholder="例如: 0.001 BTC">
+            <small style="color: #666; font-size: 12px;">输入要出售的加密货币数量</small>
+        </div>
+        
+        <button onclick="startSellWidget()">启动出金 Widget</button>
+        
+        <div id="mercuryo-widget"></div>
+    </div>
+    
+    <!-- Mercuryo Widget Script (Sandbox) -->
+    <script src="https://sandbox-widget.mrcr.io/embed.2.0.js"></script>
+    
+    <!-- CryptoJS for SHA512 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <script>
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.warn('无法获取 IP，使用默认值:', error);
+                return '127.0.0.1';
+            }
+        }
+        
+        function generateSignature(address, secret, ip, merchantTxId) {
+            const signatureString = address + secret + ip + merchantTxId;
+            const hash = CryptoJS.SHA512(signatureString).toString();
+            return 'v2:' + hash;
+        }
+        
+        async function startSellWidget() {
+            const widgetId = document.getElementById('widget-id').value.trim();
+            const secret = document.getElementById('secret').value.trim();
+            const refundAddress = document.getElementById('refund-address').value.trim();
+            const currency = document.getElementById('currency').value;
+            const fiatCurrency = document.getElementById('fiat-currency').value;
+            const amount = document.getElementById('amount').value.trim();
+            
+            if (!widgetId || !secret || !refundAddress) {
+                alert('请填写所有必需字段！');
+                return;
+            }
+            
+            console.log('正在启动出金 Widget...');
+            
+            // 生成 Merchant Transaction ID
+            const merchantTxId = 'sell_' + Date.now();
+            
+            // 获取用户 IP
+            const userIP = await getUserIP();
+            console.log('用户 IP:', userIP);
+            
+            // 生成签名 (出金时使用 refundAddress)
+            const signature = generateSignature(refundAddress, secret, userIP, merchantTxId);
+            
+            console.log('出金配置信息:', {
+                widgetId,
+                refundAddress,
+                merchantTxId,
+                ip: userIP,
+                currency,
+                fiatCurrency,
+                amount,
+                signature: signature.substring(0, 20) + '...'
+            });
+            
+            // 清空容器
+            const container = document.getElementById('mercuryo-widget');
+            container.innerHTML = '';
+            
+            try {
+                // 启动出金 Widget
+                mercuryoWidget.run({
+                    widgetId: widgetId,
+                    host: container,
+                    type: 'sell',                          // 设置为出金模式
+                    refundAddress: refundAddress,          // 退款地址（必需）
+                    merchantTransactionId: merchantTxId,
+                    signature: signature,
+                    currency: currency,                     // 要出售的加密货币
+                    fiatCurrency: fiatCurrency,            // 要接收的法币 (EUR/USD)
+                    amount: amount                         // 加密货币数量
+                });
+                
+                console.log('✅ 出金 Widget 启动成功！');
+                console.log(`
+📝 接下来的步骤：
+1. Widget 会显示一个充值地址
+2. 向该地址转入 ${amount} ${currency}
+3. 收到加密货币后，系统会自动兑换为 ${fiatCurrency}
+4. 法币会转入您指定的银行卡
+
+⏰ 注意：
+- 必须在 6 小时内完成转账
+- 超时后交易将失败
+- 加密货币会存入 Mercuryo 钱包余额（不会自动转换）
+                `);
+                
+                // 监听 Widget 消息
+                window.addEventListener('message', function(event) {
+                    if (event.origin !== 'https://sandbox-widget.mrcr.io') return;
+                    console.log('📨 Widget 消息:', event.data);
+                    
+                    // 如果收到充值地址，显示提醒
+                    if (event.data && event.data.type === 'sell-address-generated') {
+                        console.log('💰 充值地址已生成:', event.data.address);
+                        alert(`充值地址已生成！\n\n请向以下地址转入 ${amount} ${currency}:\n${event.data.address}\n\n⏰ 请在 6 小时内完成转账`);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('❌ 出金 Widget 启动失败:', error);
+                alert('出金 Widget 启动失败！\n\n错误: ' + error.message + 
+                      '\n\n可能的原因：\n' +
+                      '1. Widget ID 或 Secret Key 不正确\n' +
+                      '2. Domain URL 未正确配置\n' +
+                      '3. 出金功能未启用（需联系集成经理）\n' +
+                      '4. 浏览器控制台有更详细的错误信息');
+            }
+        }
+        
+        // 页面加载时的提示
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log(`
+💸 Mercuryo 出金测试工具
+
+📝 使用步骤：
+1. 确认出金功能已由集成经理启用
+2. 在 Dashboard 中配置 Domain URL (file:// 或 http://localhost)
+3. 填入 Widget ID 和 Secret Key
+4. 填入退款地址（发生错误时加密货币退回此地址）
+5. 选择要出售的加密货币和接收的法币
+6. 点击"启动出金 Widget"按钮
+
+🔍 调试信息：
+- 打开浏览器开发者工具 (F12)
+- 查看 Console 标签页的日志
+- 查看 Network 标签页的网络请求
+
+⚠️ 出金特别说明：
+- 仅支持 EUR 和 USD 两种法币
+- 用户必须已完成 KYC 验证
+- 加密货币必须在 6 小时内转入
+- 超时后加密货币会存入 Mercuryo 钱包余额
+
+📊 交易状态：
+new → pending → succeeded (成功)
+new → pending → failed (失败，加密货币退回)
+new → pending → cancelled (取消，加密货币退回)
+
+❓ 遇到问题？
+- 确认出金功能已启用
+- 确认 Domain URL 已正确配置
+- 检查用户是否已完成 KYC
+- 查看浏览器控制台的详细错误
+            `);
+        });
+    </script>
+</body>
+</html>
