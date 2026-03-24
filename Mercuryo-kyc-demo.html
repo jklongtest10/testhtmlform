@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercuryo KYC 认证 Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .response-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .response-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-incomplete {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-under_review {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .file-upload {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f9fafb;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Mercuryo KYC 认证 Demo</h1>
+            <p>完整的 KYC 流程演示</p>
+        </div>
+
+        <div class="card">
+            <div class="alert alert-info">
+                <strong>📌 API 配置信息</strong><br>
+                <strong>Sandbox API:</strong> <code>https://sandbox-api.mrcr.io</code><br>
+                <strong>SDK-Partner-Token:</strong> <code id="token-display">244:0f7c668ee396b2323epjGChmRSlU0bVjrt4PPP4Dvx9D8Ixy1n44qaTldVjliLw3</code>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('signup')">1. 用户注册</button>
+                <button class="tab" onclick="switchTab('signin')">2. 用户登录</button>
+                <button class="tab" onclick="switchTab('kyc-status')">3. KYC 状态</button>
+                <button class="tab" onclick="switchTab('upload-docs')">4. 上传文档</button>
+                <button class="tab" onclick="switchTab('widget')">5. Widget 集成</button>
+            </div>
+
+            <!-- 1. 用户注册 -->
+            <div id="signup-content" class="tab-content active">
+                <h2>📝 用户注册 (Silent Sign-Up)</h2>
+                
+                <div class="alert alert-warning">
+                    <strong>⚠️ 注意事项</strong><br>
+                    • 用户必须接受服务条款才能注册<br>
+                    • 如果用户已存在，会直接返回该用户的信息<br>
+                    • 可选择是否使用 OTP 验证
+                </div>
+
+                <div class="form-group">
+                    <label>用户邮箱 *</label>
+                    <input type="email" id="signup-email" placeholder="user@example.com" value="test@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="signup-accept" checked> 
+                        接受服务条款 (必需)
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>语言代码</label>
+                    <select id="signup-language">
+                        <option value="en-US">English (en-US)</option>
+                        <option value="zh-CN">简体中文 (zh-CN)</option>
+                        <option value="es-ES">Español (es-ES)</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="signUpUser()">🚀 注册用户</button>
+
+                <div id="signup-response" class="response-box" style="display:none;">
+                    <strong>响应数据：</strong>
+                    <pre id="signup-response-text"></pre>
+                </div>
+            </div>
+
+            <!-- 2. 用户登录 -->
+            <div id="signin-content" class="tab-content">
+                <h2>🔑 用户登录 (Silent Sign-In)</h2>
+
+                <div class="alert alert-info">
+                    <strong>两种登录方式：</strong><br>
+                    1. <strong>无 OTP 登录：</strong>直接登录，无需邮箱验证<br>
+                    2. <strong>OTP 登录：</strong>发送验证码到邮箱，需要验证
+                </div>
+
+                <div class="form-group">
+                    <label>用户邮箱 *</label>
+                    <input type="email" id="signin-email" placeholder="user@example.com" value="test@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="signin-accept" checked> 
+                        接受服务条款 (必需)
+                    </label>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn" onclick="signInNoVerify()">🚀 无 OTP 登录</button>
+                    <button class="btn" onclick="signInWithOTP()">📧 OTP 登录</button>
+                </div>
+
+                <div id="otp-section" style="display:none; margin-top: 20px;">
+                    <div class="form-group">
+                        <label>验证码 (OTP)</label>
+                        <input type="text" id="otp-code" placeholder="输入邮箱收到的验证码">
+                    </div>
+                    <button class="btn" onclick="verifyOTP()">✅ 验证 OTP</button>
+                </div>
+
+                <div id="signin-response" class="response-box" style="display:none;">
+                    <strong>响应数据：</strong>
+                    <pre id="signin-response-text"></pre>
+                </div>
+            </div>
+
+            <!-- 3. KYC 状态查询 -->
+            <div id="kyc-status-content" class="tab-content">
+                <h2>📊 KYC 状态查询</h2>
+
+                <div class="alert alert-info">
+                    <strong>KYC 状态说明：</strong><br>
+                    • <span class="status-badge status-complete">complete</span> - KYC 已完成<br>
+                    • <span class="status-badge status-incomplete">incomplete</span> - 未开始验证<br>
+                    • <span class="status-badge status-under_review">under_review</span> - 审核中<br>
+                    • <span class="status-badge status-failed">failed</span> - 验证失败
+                </div>
+
+                <div class="form-group">
+                    <label>User Token (Bearer Token)</label>
+                    <input type="text" id="kyc-user-token" placeholder="从登录响应中获取的 bearer_token">
+                    <small>从上一步登录成功后获取</small>
+                </div>
+
+                <button class="btn" onclick="checkKYCStatus()">🔍 查询 KYC 状态</button>
+
+                <div id="kyc-status-response" class="response-box" style="display:none;">
+                    <strong>KYC 状态：</strong>
+                    <pre id="kyc-status-text"></pre>
+                </div>
+            </div>
+
+            <!-- 4. 上传 KYC 文档 -->
+            <div id="upload-docs-content" class="tab-content">
+                <h2>📄 上传 KYC 文档</h2>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ 文档要求：</strong><br>
+                    • 支持的文档类型：身份证、护照、驾照、居住证明<br>
+                    • 文件必须是 Base64 编码<br>
+                    • 所有角落和边缘必须可见<br>
+                    • 信息必须清晰可读
+                </div>
+
+                <div class="form-group">
+                    <label>User Token (Bearer Token) *</label>
+                    <input type="text" id="upload-user-token" placeholder="从登录响应中获取的 bearer_token">
+                </div>
+
+                <div class="form-group">
+                    <label>KYC Feature *</label>
+                    <select id="upload-feature">
+                        <option value="crypto">Crypto (加密货币操作)</option>
+                        <option value="card">Card (Spend Card)</option>
+                        <option value="ssn">SSN (美国 SSN)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>国家代码 *</label>
+                    <input type="text" id="upload-country" placeholder="例如: US, CN, GB" value="US" maxlength="2">
+                    <small>ISO 3166-1 alpha-2 国家代码</small>
+                </div>
+
+                <div class="form-group">
+                    <label>文档类型 *</label>
+                    <select id="upload-doc-type">
+                        <option value="id_card">身份证 (ID Card)</option>
+                        <option value="passport">护照 (Passport)</option>
+                        <option value="driving_licence">驾照 (Driving Licence)</option>
+                        <option value="residence_permit">居住证明 (Residence Permit)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>上传文档</label>
+                    <div class="file-upload" onclick="document.getElementById('file-input').click()">
+                        <input type="file" id="file-input" accept="image/*,.pdf" onchange="handleFileSelect(event)" multiple>
+                        <p>📁 点击上传文件或拖放到这里</p>
+                        <small>支持 JPG, PNG, PDF 格式</small>
+                    </div>
+                    <div id="file-list" style="margin-top: 10px;"></div>
+                </div>
+
+                <button class="btn" onclick="uploadKYCDocuments()">📤 上传 KYC 文档</button>
+
+                <div id="upload-response" class="response-box" style="display:none;">
+                    <strong>响应数据：</strong>
+                    <pre id="upload-response-text"></pre>
+                </div>
+            </div>
+
+            <!-- 5. Widget 集成 -->
+            <div id="widget-content" class="tab-content">
+                <h2>🎨 Widget 集成</h2>
+
+                <div class="alert alert-success">
+                    <strong>✅ 集成步骤：</strong>
+                    <ol class="step-list">
+                        <li>完成用户注册或登录，获取 <code>init_token</code></li>
+                        <li>（可选）上传 KYC 文档，获取 <code>kyc_access_token</code> 作为 <code>share_token</code></li>
+                        <li>使用 <code>init_token</code> 和 <code>share_token</code> 启动 Widget</li>
+                        <li>用户在 Widget 中完成活体检测和补充文档</li>
+                    </ol>
+                </div>
+
+                <div class="form-group">
+                    <label>Init Token *</label>
+                    <input type="text" id="widget-init-token" placeholder="从注册/登录响应中获取">
+                </div>
+
+                <div class="form-group">
+                    <label>Share Token (可选)</label>
+                    <input type="text" id="widget-share-token" placeholder="从上传文档响应中获取的 kyc_access_token">
+                    <small>如果已上传文档，填入 kyc_access_token</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Widget ID *</label>
+                    <input type="text" id="widget-id" placeholder="你的 Widget ID">
+                </div>
+
+                <button class="btn" onclick="launchWidget()">🚀 启动 KYC Widget</button>
+
+                <div id="widget-container" style="margin-top: 20px; min-height: 600px; border: 2px solid #e5e7eb; border-radius: 8px;"></div>
+            </div>
+        </div>
+
+        <!-- 调试信息 -->
+        <div class="card">
+            <h3>🔧 调试信息</h3>
+            <div id="debug-log" class="response-box">
+                <pre id="debug-text">等待操作...</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mercuryo Widget Script -->
+    <script src="https://sandbox-widget.mrcr.io/embed.2.0.js"></script>
+
+    <script>
+        const API_BASE = 'https://sandbox-api.mrcr.io';
+        const SDK_PARTNER_TOKEN = '244:0f7c668ee396b2323epjGChmRSlU0bVjrt4PPP4Dvx9D8Ixy1n44qaTldVjliLw3';
+
+        let currentUserToken = null;
+        let uploadedFiles = {};
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        function log(message, data = null) {
+            const debugText = document.getElementById('debug-text');
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            
+            if (data) {
+                logMessage += '\n' + JSON.stringify(data, null, 2);
+            }
+            
+            debugText.textContent = logMessage + '\n\n' + debugText.textContent;
+            console.log(message, data);
+        }
+
+        // 1. 用户注册
+        async function signUpUser() {
+            const email = document.getElementById('signup-email').value.trim();
+            const accept = document.getElementById('signup-accept').checked;
+            const languageCode = document.getElementById('signup-language').value;
+
+            if (!email || !accept) {
+                alert('请填写邮箱并接受服务条款！');
+                return;
+            }
+
+            log('正在注册用户...', { email, languageCode });
+
+            try {
+                const response = await fetch(`${API_BASE}/sdk-partner/sign-up`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Sdk-Partner-Token': SDK_PARTNER_TOKEN
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        accept: accept,
+                        language_code: languageCode
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('signup-response').style.display = 'block';
+                document.getElementById('signup-response-text').textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.data) {
+                    log('✅ 用户注册成功！', data.data);
+                    
+                    // 自动填充到 Widget 集成
+                    if (data.data.init_token) {
+                        document.getElementById('widget-init-token').value = data.data.init_token;
+                    }
+                    
+                    alert('注册成功！\n\nInit Token 已自动填充到 Widget 集成标签页');
+                } else {
+                    log('❌ 注册失败', data);
+                    alert('注册失败：' + (data.message || JSON.stringify(data)));
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        // 2. 无 OTP 登录
+        async function signInNoVerify() {
+            const email = document.getElementById('signin-email').value.trim();
+            const accept = document.getElementById('signin-accept').checked;
+
+            if (!email || !accept) {
+                alert('请填写邮箱并接受服务条款！');
+                return;
+            }
+
+            log('正在无 OTP 登录...', { email });
+
+            try {
+                const response = await fetch(`${API_BASE}/sdk-partner/user/sign-in-no-verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Sdk-Partner-Token': SDK_PARTNER_TOKEN
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        accept: accept
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('signin-response').style.display = 'block';
+                document.getElementById('signin-response-text').textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.data) {
+                    log('✅ 登录成功！', data.data);
+                    
+                    currentUserToken = data.data.bearer_token;
+                    
+                    // 自动填充
+                    document.getElementById('kyc-user-token').value = data.data.bearer_token;
+                    document.getElementById('upload-user-token').value = data.data.bearer_token;
+                    
+                    alert('登录成功！\n\nBearer Token 已自动填充');
+                } else {
+                    log('❌ 登录失败', data);
+                    alert('登录失败：' + (data.message || JSON.stringify(data)));
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        // 3. OTP 登录
+        let otpKey = null;
+
+        async function signInWithOTP() {
+            const email = document.getElementById('signin-email').value.trim();
+            const accept = document.getElementById('signin-accept').checked;
+
+            if (!email || !accept) {
+                alert('请填写邮箱并接受服务条款！');
+                return;
+            }
+
+            log('正在发送 OTP...', { email });
+
+            try {
+                const response = await fetch(`${API_BASE}/sdk-partner/user/sign-in`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Sdk-Partner-Token': SDK_PARTNER_TOKEN
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        accept: accept
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('signin-response').style.display = 'block';
+                document.getElementById('signin-response-text').textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.data) {
+                    log('✅ OTP 已发送！', data.data);
+                    
+                    otpKey = data.data.key;
+                    document.getElementById('otp-section').style.display = 'block';
+                    
+                    alert('验证码已发送到邮箱！\n请查收并输入验证码');
+                } else {
+                    log('❌ OTP 发送失败', data);
+                    alert('失败：' + (data.message || JSON.stringify(data)));
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        async function verifyOTP() {
+            const code = document.getElementById('otp-code').value.trim();
+
+            if (!code || !otpKey) {
+                alert('请输入验证码！');
+                return;
+            }
+
+            log('正在验证 OTP...', { code });
+
+            try {
+                const response = await fetch(`${API_BASE}/sdk-partner/user/sign-in/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Sdk-Partner-Token': SDK_PARTNER_TOKEN
+                    },
+                    body: JSON.stringify({
+                        key: otpKey,
+                        code: code
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('signin-response-text').textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.data) {
+                    log('✅ OTP 验证成功！', data.data);
+                    
+                    currentUserToken = data.data.bearer_token;
+                    
+                    document.getElementById('kyc-user-token').value = data.data.bearer_token;
+                    document.getElementById('upload-user-token').value = data.data.bearer_token;
+                    
+                    alert('验证成功！Bearer Token 已自动填充');
+                } else {
+                    log('❌ OTP 验证失败', data);
+                    alert('验证失败：' + (data.message || JSON.stringify(data)));
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        // 4. 查询 KYC 状态
+        async function checkKYCStatus() {
+            const userToken = document.getElementById('kyc-user-token').value.trim();
+
+            if (!userToken) {
+                alert('请先登录获取 User Token！');
+                return;
+            }
+
+            log('正在查询 KYC 状态...');
+
+            try {
+                const response = await fetch(`${API_BASE}/sdk-partner/user/kyc-status`, {
+                    method: 'GET',
+                    headers: {
+                        'Sdk-User-Token': userToken
+                    }
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('kyc-status-response').style.display = 'block';
+                
+                if (response.ok && data.data) {
+                    log('✅ KYC 状态查询成功', data.data);
+                    
+                    let statusHTML = '<strong>KYC Features:</strong><br><br>';
+                    
+                    if (data.data.features && data.data.features.length > 0) {
+                        data.data.features.forEach(feature => {
+                            const badgeClass = 'status-' + feature.status;
+                            statusHTML += `<span class="status-badge ${badgeClass}">${feature.feature}: ${feature.status}</span><br>`;
+                        });
+                    } else {
+                        statusHTML += '暂无 KYC 记录';
+                    }
+                    
+                    statusHTML += '<br><br><strong>完整响应：</strong><br>' + 
+                                 JSON.stringify(data, null, 2);
+                    
+                    document.getElementById('kyc-status-text').innerHTML = statusHTML;
+                } else {
+                    log('❌ 查询失败', data);
+                    document.getElementById('kyc-status-text').textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        // 5. 文件处理
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+            
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result.split(',')[1];
+                    uploadedFiles[file.name] = base64;
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.style.padding = '8px';
+                    fileItem.style.background = '#f3f4f6';
+                    fileItem.style.borderRadius = '4px';
+                    fileItem.style.marginBottom = '5px';
+                    fileItem.textContent = `✅ ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    fileList.appendChild(fileItem);
+                    
+                    log(`文件已加载: ${file.name}`);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 6. 上传 KYC 文档
+        async function uploadKYCDocuments() {
+            const userToken = document.getElementById('upload-user-token').value.trim();
+            const feature = document.getElementById('upload-feature').value;
+            const countryCode = document.getElementById('upload-country').value.trim().toUpperCase();
+            const docType = document.getElementById('upload-doc-type').value;
+
+            if (!userToken) {
+                alert('请先登录获取 User Token！');
+                return;
+            }
+
+            if (Object.keys(uploadedFiles).length === 0) {
+                alert('请先上传文件！');
+                return;
+            }
+
+            log('正在上传 KYC 文档...', { feature, countryCode, docType });
+
+            try {
+                const documents = [{
+                    type: docType,
+                    files: uploadedFiles
+                }];
+
+                const response = await fetch(`${API_BASE}/sdk-partner/kyc/docs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Sdk-User-Token': userToken
+                    },
+                    body: JSON.stringify({
+                        feature: feature,
+                        country_code: countryCode,
+                        documents: documents
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('upload-response').style.display = 'block';
+                document.getElementById('upload-response-text').textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.data) {
+                    log('✅ 文档上传成功！', data.data);
+                    
+                    // 自动填充 share_token
+                    if (data.data.kyc_access_token) {
+                        document.getElementById('widget-share-token').value = data.data.kyc_access_token;
+                    }
+                    
+                    alert('文档上传成功！\n\nkyc_access_token 已自动填充为 share_token');
+                } else {
+                    log('❌ 上传失败', data);
+                    alert('上传失败：' + (data.message || JSON.stringify(data)));
+                }
+            } catch (error) {
+                log('❌ 请求错误', error);
+                alert('请求失败：' + error.message);
+            }
+        }
+
+        // 7. 启动 Widget
+        function launchWidget() {
+            const initToken = document.getElementById('widget-init-token').value.trim();
+            const shareToken = document.getElementById('widget-share-token').value.trim();
+            const widgetId = document.getElementById('widget-id').value.trim();
+
+            if (!initToken || !widgetId) {
+                alert('请填写 Init Token 和 Widget ID！');
+                return;
+            }
+
+            log('正在启动 Widget...', { initToken: initToken.substring(0, 20) + '...', shareToken: shareToken ? 'Yes' : 'No' });
+
+            const container = document.getElementById('widget-container');
+            container.innerHTML = '';
+
+            try {
+                const widgetConfig = {
+                    widgetId: widgetId,
+                    host: container,
+                    initToken: initToken,
+                    initTokenType: 'sdkPartnerAuthorization'
+                };
+
+                if (shareToken) {
+                    widgetConfig.shareToken = shareToken;
+                }
+
+                mercuryoWidget.run(widgetConfig);
+
+                log('✅ Widget 启动成功！');
+                
+                alert('Widget 已启动！\n\n用户可以在 Widget 中完成活体检测和补充文档');
+            } catch (error) {
+                log('❌ Widget 启动失败', error);
+                alert('Widget 启动失败：' + error.message);
+            }
+        }
+
+        // 页面加载提示
+        window.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Mercuryo KYC Demo 已加载');
+            log('API Base URL: ' + API_BASE);
+            log('SDK-Partner-Token: ' + SDK_PARTNER_TOKEN.substring(0, 20) + '...');
+            
+            console.log(`
+📚 KYC 完整流程：
+
+1️⃣ 用户注册/登录
+   - 使用 Silent Sign-Up 或 Sign-In
+   - 获取 init_token 和 bearer_token
+
+2️⃣ 查询 KYC 状态
+   - 检查用户当前的 KYC 状态
+   - 确定需要哪些文档
+
+3️⃣ 上传 KYC 文档（可选）
+   - 上传身份证明文件
+   - 获取 kyc_access_token 作为 share_token
+
+4️⃣ 启动 Widget
+   - 使用 init_token 和 share_token
+   - 用户在 Widget 中完成活体检测
+
+5️⃣ 再次查询状态
+   - 确认 KYC 是否完成
+
+🔗 API 文档：
+https://mercuryo-widget-partner.apidocumentation.com/iframe-oor/guide#kyc
+            `);
+        });
+    </script>
+</body>
+</html>
