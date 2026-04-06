@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mercuryo 快速测试ETH</title>
+    <title>Mercuryo 快速测试</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,7 +109,7 @@
         
         <div class="form-group">
             <label>钱包地址</label>
-            <input type="text" id="address" value="0xbBC8f6B710359dbcdF02f9eb50Ade391890A6021">
+            <input type="text" id="address" value="msBE6aCaAesegu4VzbQW3L5xWBL8vi15Q7">
         </div>
         
         <button onclick="startWidget()">启动 Widget</button>
@@ -118,7 +118,7 @@
     </div>
     
     <!-- Mercuryo Widget Script (Sandbox) -->
-    <script src="https://sandbox-widget.mrcr.io/embed.2.1.js"></script>
+    <script src="https://sandbox-widget.mrcr.io/embed.2.0.js"></script>
     
     <!-- CryptoJS for SHA512 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -183,11 +183,9 @@
                     address: address,
                     merchantTransactionId: merchantTxId,
                     signature: signature,
-                    currency: 'USDT',
+                    currency: 'BTC',
                     fiatCurrency: 'USD',
-                    fiatAmount: '20',
-                    network:'ETHEREUM',
-                    email:'whitegoode896@gmail.com'
+                    fiatAmount: '1.23'
                 });
                 
                 console.log('✅ Widget 启动成功！');
